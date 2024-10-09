@@ -7,7 +7,6 @@ class LandChunk:
         self.ne = ne
 
         self.elevationDataNPArray = Tessadem.getGeoTIFF(self.sw, self.ne)
-        pass
 
     def getElevationDataNPArray(self, ):
         return self.elevationDataNPArray

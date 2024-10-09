@@ -106,6 +106,7 @@ class App(customtkinter.CTk):
         
         if abs(sw[0] - ne[0]) > 39.9 or abs(sw[1] - ne[1]) > 39.9:
             return #TODO: show error
+        print(sw, ne)
 
         terrain = Terrain(sw, ne)
 

@@ -8,6 +8,7 @@ class Terrain:
     def __init__(self, sw, ne):
         self.terrainInfo = RMD.RawMapData(sw, ne)
 
+
     def MakePngFile(self, filename):
         """given a numpy array, make a black and whitepng file"""
 
@@ -18,6 +19,3 @@ class Terrain:
         # make and save image
         img = Image.fromarray(bwArray)
         img.save(filename + '.png')
-
-    def __init__(self):
-        pass

@@ -13,7 +13,23 @@ class RawMapData:
         pass
 
     def createMapData(self, sw, ne):
-        """used chuncks to create map data"""
+        """
+        Create a 2d numpy array of the given shape to store 64 equally sized rectangles of the given sw and ne coordinates.
+        
+        Given a sw and ne coordinate, this function will create a 2d numpy array of shape (8,8) with each element being a tuple 
+        of two tuples that represent the sw and ne coordinates of each equally sized rectangle in the 2d array. The 2d array
+        is structured such that the first index of the array (i) represents the row number of the rectangle, and the second index
+        of the array (j) represents the column number of the rectangle. Thus, the element at array[i][j] is the sw and ne coordinates
+        of the rectangle at row i and column j in the 2d array.
+
+        Parameters:
+        sw (tuple): The sw coordinates of the 2d array.
+        ne (tuple): The ne coordinates of the 2d array.
+
+        Returns:
+        np.array: A 2d numpy array of shape (8,8) with each element being a tuple of two tuples that represent the sw and ne
+        coordinates of each equally sized rectangle in the 2d array.
+        """
 
         # given that the shape given be the sw and ne cooridnates, make an 8x8 2d array of touples of touples coordinates
         # so that the sw ne coords can be split into 64 equaly sized rectangles
@@ -34,6 +50,5 @@ class RawMapData:
                 mapDataNPArray[i, j] = landChunk.getElevationDataNPArray()
 
         largeNPArray = np.concatenate([np.concatenate(row, axis=0) for row in mapDataNPArray], axis=0)
-        
 
-        pass
+        return largeNPArray
