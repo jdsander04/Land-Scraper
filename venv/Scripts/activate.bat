@@ -8,7 +8,7 @@ if defined _OLD_CODEPAGE (
     "%SystemRoot%\System32\chcp.com" 65001 > nul
 )
 
-set VIRTUAL_ENV=C:\Users\Joel Sander\Documents\coding projects\tkinterdemo\venv
+set VIRTUAL_ENV=C:\Users\Joel Sander\Documents\coding projects\Land-Scraper\venv
 
 if not defined PROMPT set PROMPT=$P$G
 

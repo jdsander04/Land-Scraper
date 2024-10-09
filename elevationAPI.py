@@ -38,10 +38,12 @@ class Tessadem:
 
         return kwargs
 
-    def getGeoTIFF(self, ) -> np.array:
+    def getGeoTIFF(self, sw, ne) -> np.array:
         # example url
         # https://tessadem.com/api/elevation?key=KEY&mode=area&rows=128&columns=128&locations=42.701,2.897|46.268,6.099&format=geotiff
-        url = self._build_url(**self._build_kwargs(mode="area", rows=128, columns=128, locations="42.701,2.897|46.268,6.099", format="geotiff"))
+        sw_str = f"{sw[0]:.3f},{sw[1]:.3f}"
+        ne_str = f"{ne[0]:.3f},{ne[1]:.3f}"
+        url = self._build_url(**self._build_kwargs(mode="area", rows=128, columns=128, locations=f"{sw_str}|{ne_str}", format="geotiff"))
 
         response = requests.get(url)
 
@@ -53,7 +55,7 @@ class Tessadem:
 
             # Convert the GeoTIFF to a numpy array
             with geotiff.GeoTiffFile('elevation_data.tif') as tif:
-                elevation_data = tif.read(band=1)
+                elevation_data: np.array = tif.read(band=1)
 
             return elevation_data
         else:

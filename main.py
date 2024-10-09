@@ -13,11 +13,7 @@ class App(customtkinter.CTk):
 
     def __init__(self, *args, **kwargs):
 
-
-        self.terrain = Terrain()
-        
-
-
+        self.terrain: Terrain
 
         super().__init__(*args, **kwargs)
 
@@ -102,6 +98,19 @@ class App(customtkinter.CTk):
 
     def export_event(self):
         export = self.export_option_menu.get()
+
+        sw = (min(self.marker_list[0].position[0], self.marker_list[1].position[0]),
+              min(self.marker_list[0].position[1], self.marker_list[1].position[1]))
+        ne = (max(self.marker_list[0].position[0], self.marker_list[1].position[0]),
+              max(self.marker_list[0].position[1], self.marker_list[1].position[1]))
+        
+        if abs(sw[0] - ne[0]) > 39.9 or abs(sw[1] - ne[1]) > 39.9:
+            return #TODO: show error
+
+        terrain = Terrain(sw, ne)
+
+        print(terrain.terrainInfo.elevationDataNPArray)
+
         if export == "object":
             pass
         elif export == "png":

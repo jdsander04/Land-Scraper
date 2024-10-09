@@ -1,6 +1,6 @@
-import environ
+from dotenv import load_dotenv
+import os
 
-env = environ.Env()
-environ.Env.read_env('.env')
+load_dotenv()  # Loads variables from a .env file
 
-ELEVATION_API_KEY = env('ELEVATION_API_KEY')
+ELEVATION_API_KEY = os.getenv('ELEVATION_API_KEY')

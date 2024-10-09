@@ -1,8 +1,13 @@
 import numpy as np
+from elevationAPI import Tessadem as Tessadem
 
 class LandChunk:
-    def __init__(self, data: np.ndarray, origin: tuple):
-        if data.shape[0] > 128 or data.shape[1] > 128:
-            raise ValueError("data must be a 2D numpy array up to 128x128")
-        self.data = data
-        self.origin = origin
+    def __init__(self, sw: tuple, ne: tuple):
+        self.sw = sw
+        self.ne = ne
+
+        self.elevationDataNPArray = Tessadem.getGeoTIFF(self.sw, self.ne)
+        pass
+
+    def getElevationDataNPArray(self, ):
+        return self.elevationDataNPArray
