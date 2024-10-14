@@ -1,12 +1,15 @@
 import requests
 import settings
 import numpy as np
-import geotiff
+import rasterio
+import logging
+from io import BytesIO
+
+logging.basicConfig(level=logging.INFO)
 
 class Tessadem:
-    def __init__(self):
-        self.api_key = settings.TESSADEM_API_KEY
-        self.base_url = "https://api.tessadem.xyz"
+    api_key: str = settings.get_elevation_api_key()
+    base_url = "https://api.tessadem.xyz"
 
     def _build_url(self, **kwargs) -> str:
         url = "https://tessadem.com/api/elevation"
@@ -38,25 +41,37 @@ class Tessadem:
 
         return kwargs
 
-    def getGeoTIFF(self, sw, ne) -> np.array:
-        # example url
-        # https://tessadem.com/api/elevation?key=KEY&mode=area&rows=128&columns=128&locations=42.701,2.897|46.268,6.099&format=geotiff
+    def getGeoTIFF(self, sw: tuple, ne: tuple) -> np.array:
+        # Calculate the width and height of the bounding box
+        width = ne[0] - sw[0]
+        height = ne[1] - sw[1]
+
+        if width > height:
+            columns = 128
+            rows = int(height * (columns / width))
+        else:
+            rows = 128
+            columns = int(width * (rows / height))
+
+        # Build the bounding box for the request
         sw_str = f"{sw[0]:.3f},{sw[1]:.3f}"
         ne_str = f"{ne[0]:.3f},{ne[1]:.3f}"
-        url = self._build_url(**self._build_kwargs(mode="area", rows=128, columns=128, locations=f"{sw_str}|{ne_str}", format="geotiff"))
+        url = self._build_url(**self._build_kwargs(mode="area", rows=rows, columns=columns, locations=f"{sw_str}|{ne_str}", format="geotiff"))
+
+        logging.info(f"Requesting GeoTIFF data from {url}")
 
         response = requests.get(url)
 
-# Check for request success
+        # Check for request success
         if response.status_code == 200:
-            # Save the GeoTIFF data to a file
-            # with open('elevation_data.tif', 'wb') as file:
-            #     file.write(response.content)
+            # Read the GeoTIFF data using rasterio from the byte stream
+            with rasterio.MemoryFile(response.content) as memfile:
+                with memfile.open() as dataset:
+                    elevation_data = dataset.read(1)  # Read the first band
 
-            # Convert the GeoTIFF to a numpy array
-            with geotiff.GeoTiffFile('elevation_data.tif') as tif:
-                elevation_data: np.array = tif.read(band=1)
+            logging.info(f"Retrieved GeoTIFF data of shape {elevation_data.shape}")
 
             return elevation_data
         else:
-            print(f"Failed to retrieve data: {response.status_code} - {response.text}")
+            logging.error(f"Failed to retrieve data: {response.status_code} - {response.text}")
+            return None

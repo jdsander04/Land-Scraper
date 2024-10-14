@@ -1,21 +1,22 @@
 import RawMapData as RMD
 from PIL import Image
+import numpy as np
 
 class Terrain:
     terrainInfo: RMD.RawMapData
     transformedTerrainInfo: RMD.RawMapData
 
     def __init__(self, sw, ne):
+        print(f"Initializing terrain with sw={sw} and ne={ne}")
         self.terrainInfo = RMD.RawMapData(sw, ne)
-
+        self.transformedTerrainInfo = RMD.RawMapData()
+        self.transformedTerrainInfo.elevationDataNPArray = self.terrainInfo.elevationDataNPArray / self.terrainInfo.elevationDataNPArray.max()
 
     def MakePngFile(self, filename):
-        """given a numpy array, make a black and whitepng file"""
+        """given a numpy array, make a grey scale png file"""
 
-        array = self.terrainInfo.terrain
+        print(f"Making PNG file {filename}.png")
+        array = self.transformedTerrainInfo.elevationDataNPArray
 
-        # convert to black and white
-        bwArray = (array > 0).astype('uint8') * 255
-        # make and save image
-        img = Image.fromarray(bwArray)
-        img.save(filename + '.png')
+        image = Image.fromarray((array * 255).astype(np.uint8))
+        image.save(f"{filename}.png")

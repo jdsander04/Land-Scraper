@@ -2,53 +2,70 @@ import numpy as np
 from LandChunk import LandChunk
 
 class RawMapData:
+
     def __init__(self, sw, ne):
+        """
+        Create a new RawMapData object from a given bounding box
+
+        :param sw: tuple of (longitude, latitude) of the southwest corner of the bounding box
+        :param ne: tuple of (longitude, latitude) of the northeast corner of the bounding box
+        """
         self.sw = sw
         self.ne = ne
 
         self.elevationDataNPArray: np.array = self.createMapData(sw, ne)
 
+    def __init__(self, other):
+        """
+        Create a copy of another RawMapData object
+        :param other: another RawMapData object to copy
+        """
+        self.sw = other.sw
+        self.ne = other.ne
 
-
-        pass
+        self.elevationDataNPArray: np.array = other.elevationDataNPArray.copy()
 
     def createMapData(self, sw, ne):
-        """
-        Create a 2d numpy array of the given shape to store 64 equally sized rectangles of the given sw and ne coordinates.
-        
-        Given a sw and ne coordinate, this function will create a 2d numpy array of shape (8,8) with each element being a tuple 
-        of two tuples that represent the sw and ne coordinates of each equally sized rectangle in the 2d array. The 2d array
-        is structured such that the first index of the array (i) represents the row number of the rectangle, and the second index
-        of the array (j) represents the column number of the rectangle. Thus, the element at array[i][j] is the sw and ne coordinates
-        of the rectangle at row i and column j in the 2d array.
+        print(f"Creating map data for sw={sw} and ne={ne}")
 
-        Parameters:
-        sw (tuple): The sw coordinates of the 2d array.
-        ne (tuple): The ne coordinates of the 2d array.
-
-        Returns:
-        np.array: A 2d numpy array of shape (8,8) with each element being a tuple of two tuples that represent the sw and ne
-        coordinates of each equally sized rectangle in the 2d array.
-        """
-
-        # given that the shape given be the sw and ne cooridnates, make an 8x8 2d array of touples of touples coordinates
-        # so that the sw ne coords can be split into 64 equaly sized rectangles
-        latWidth = (ne[0] - sw[0]) / 8
+        latWidth = (ne[0] - sw[0]) / 8  # Divide the range into 8 sections
         longWidth = (ne[1] - sw[1]) / 8
         mapDataChunkCoords = []
+
+        # Create coordinate pairs for each LandChunk
         for i in range(8):
             row = []
             for j in range(8):
-                row.append(((sw[0] + (i * latWidth), sw[1] + (j * longWidth)), 
-                            (sw[0] + ((i+1) * latWidth), sw[1] + ((j+1) * longWidth))))
+                chunk_sw = (sw[0] + (i * latWidth), sw[1] + (j * longWidth))
+                chunk_ne = (sw[0] + ((i + 1) * latWidth), sw[1] + ((j + 1) * longWidth))
+                row.append((chunk_sw, chunk_ne))
             mapDataChunkCoords.append(row)
 
-        mapDataNPArray = np.zeros((8, 8), dtype=object)
-        for i, row in enumerate(mapDataChunkCoords):
-            for j, coordPair in enumerate(row):
+        # Initialize a list to hold the elevation data
+        elevation_data_chunks = np.zeros((8, 8), dtype=object)
+
+        # Retrieve elevation data from each LandChunk
+        for i in range(8):
+            for j in range(8):
+                coordPair = mapDataChunkCoords[i][j]
                 landChunk = LandChunk(coordPair[0], coordPair[1])
-                mapDataNPArray[i, j] = landChunk.getElevationDataNPArray()
+                elevation_data_chunks[i, j] = landChunk.getElevationDataNPArray()
 
-        largeNPArray = np.concatenate([np.concatenate(row, axis=0) for row in mapDataNPArray], axis=0)
+                # Debug: Check the shape of each chunk
+                print(f"LandChunk at ({i}, {j}) shape: {elevation_data_chunks[i, j].shape}")
 
+        # Flip the order of the chunks vertically (reverse rows of chunks)
+        elevation_data_chunks_flipped = elevation_data_chunks[::-1]
+
+        # Stack the chunks into a single 1024x1024 array
+        largeNPArray = np.vstack([np.hstack(elevation_data_chunks_flipped[i]) for i in range(8)])
+
+        print(f"Finished creating map data for sw={sw} and ne={ne}")
+        print(f"Final shape of largeNPArray: {largeNPArray.shape}")  # Should be (1024, 1024)
         return largeNPArray
+    
+    
+    def __copy__(self):
+        new_one = type(self)(self.sw, self.ne)
+        new_one.elevationDataNPArray = self.elevationDataNPArray.copy()
+        return new_one

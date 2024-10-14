@@ -4,3 +4,6 @@ import os
 load_dotenv()  # Loads variables from a .env file
 
 ELEVATION_API_KEY = os.getenv('ELEVATION_API_KEY')
+
+def get_elevation_api_key():
+    return ELEVATION_API_KEY

@@ -115,7 +115,7 @@ class App(customtkinter.CTk):
         if export == "object":
             pass
         elif export == "png":
-            pass
+            terrain.MakePngFile("test")
         elif export == "jpg":
             pass
         
