@@ -1,5 +1,5 @@
 import numpy as np
-from LandChunk import LandChunk
+from LandData.LandChunk import LandChunk
 
 class RawMapData:
 

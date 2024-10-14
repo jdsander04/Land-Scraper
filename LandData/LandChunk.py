@@ -1,5 +1,5 @@
 import numpy as np
-from elevationAPI import Tessadem
+from LandData.elevationAPI import Tessadem
 class LandChunk:
 
     API: Tessadem = Tessadem()

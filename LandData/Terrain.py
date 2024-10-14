@@ -1,4 +1,4 @@
-import RawMapData as RMD
+import LandData.RawMapData as RMD
 from PIL import Image
 import numpy as np
 

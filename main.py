@@ -1,6 +1,6 @@
 import customtkinter
 from tkintermapview import TkinterMapView
-from Terrain import Terrain
+from LandData.Terrain import Terrain
 
 customtkinter.set_default_color_theme("blue")
 
