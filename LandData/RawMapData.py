@@ -3,30 +3,24 @@ from LandData.LandChunk import LandChunk
 
 class RawMapData:
 
-    def __init__(self, sw, ne):
+    def __init__(self, sw = None, ne = None):
         """
         Create a new RawMapData object from a given bounding box
 
         :param sw: tuple of (longitude, latitude) of the southwest corner of the bounding box
         :param ne: tuple of (longitude, latitude) of the northeast corner of the bounding box
         """
-        self.sw = sw
-        self.ne = ne
+        if sw is not None and ne is not None:
+            self.sw = sw
+            self.ne = ne
 
-        self.elevationDataNPArray: np.array = self.createMapData(sw, ne)
-
-    def __init__(self, other):
-        """
-        Create a copy of another RawMapData object
-        :param other: another RawMapData object to copy
-        """
-        self.sw = other.sw
-        self.ne = other.ne
-
-        self.elevationDataNPArray: np.array = other.elevationDataNPArray.copy()
+            self.elevationDataNPArray: np.array = self.createMapData(sw, ne)
 
     def createMapData(self, sw, ne):
         print(f"Creating map data for sw={sw} and ne={ne}")
+
+        averageLat = (ne[0] + sw[0]) / 2
+        HorizontalStretchFactor = 1 / (np.cos(averageLat * np.pi / 180))
 
         latWidth = (ne[0] - sw[0]) / 8  # Divide the range into 8 sections
         longWidth = (ne[1] - sw[1]) / 8
@@ -48,7 +42,7 @@ class RawMapData:
         for i in range(8):
             for j in range(8):
                 coordPair = mapDataChunkCoords[i][j]
-                landChunk = LandChunk(coordPair[0], coordPair[1])
+                landChunk = LandChunk(coordPair[0], coordPair[1], HorizontalStretchFactor)
                 elevation_data_chunks[i, j] = landChunk.getElevationDataNPArray()
 
                 # Debug: Check the shape of each chunk

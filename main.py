@@ -14,6 +14,8 @@ class App(customtkinter.CTk):
     def __init__(self, *args, **kwargs):
 
         self.terrain: Terrain
+        self.oldSW: tuple = (0, 0)
+        self.oldNE: tuple = (0, 0)
 
         super().__init__(*args, **kwargs)
 
@@ -108,14 +110,17 @@ class App(customtkinter.CTk):
             return #TODO: show error
         print(sw, ne)
 
-        terrain = Terrain(sw, ne)
-
-        print(terrain.terrainInfo.elevationDataNPArray)
+        if sw != self.oldSW or ne != self.oldNE:
+            self.terrain = Terrain(sw, ne)
+            self.oldSW = sw
+            self.oldNE = ne
+        
+        print(self.terrain.terrainInfo.elevationDataNPArray)
 
         if export == "object":
-            pass
+            self.terrain.MakeObjFile("test")
         elif export == "png":
-            terrain.MakePngFile("test")
+            self.terrain.MakePngFile("test")
         elif export == "jpg":
             pass
         

@@ -41,10 +41,10 @@ class Tessadem:
 
         return kwargs
 
-    def getGeoTIFF(self, sw: tuple, ne: tuple) -> np.array:
-        # Calculate the width and height of the bounding box
-        width = ne[0] - sw[0]
-        height = ne[1] - sw[1]
+    def getGeoTIFF(self, sw: tuple, ne: tuple, HorizontalStretchFactor) -> np.array:
+        # Calculate the latDiff and longDiff of the bounding box
+        width = ne[1] - sw[1]
+        height = (ne[0] - sw[0]) * HorizontalStretchFactor
 
         if width > height:
             columns = 128
@@ -52,6 +52,8 @@ class Tessadem:
         else:
             rows = 128
             columns = int(width * (rows / height))
+        
+        
 
         # Build the bounding box for the request
         sw_str = f"{sw[0]:.3f},{sw[1]:.3f}"
