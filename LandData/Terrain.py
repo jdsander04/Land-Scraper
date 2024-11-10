@@ -14,21 +14,29 @@ class Terrain:
         min = self.terrainInfo.elevationDataNPArray.min()
         self.transformedTerrainInfo.elevationDataNPArray = (self.terrainInfo.elevationDataNPArray - min) / (max - min) 
 
-    def MakePngFile(self, filename):
+    def MakePngFile(self, filename, folder=None):
         """given a numpy array, make a grey scale png file"""
 
         print(f"Making PNG file {filename}.png")
         array = self.transformedTerrainInfo.elevationDataNPArray
 
         image = Image.fromarray((array * 255).astype(np.uint8))
-        image.save(f"{filename}.png")
+        if folder:
+            image.save(f"{folder}/{filename}.png")
+        else:
+            image.save(f"{filename}.png")
 
-    def MakeObjFile(self, filename):
+    def MakeObjFile(self, filename, folder=None):
         """given a numpy array, export it as a 3D object in an OBJ file"""
-        
+
         print(f"Making OBJ file {filename}.obj")
         array = self.transformedTerrainInfo.elevationDataNPArray
-        with open(f"{filename}.obj", 'w') as obj_file:
+        if folder:
+            filepath = f"{folder}/{filename}.obj"
+        else:
+            filepath = f"{filename}.obj"
+
+        with open(filepath, 'w') as obj_file:
             obj_file.write("# OBJ file\n")
             rows, cols = array.shape
             for i in range(rows):

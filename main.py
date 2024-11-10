@@ -1,3 +1,4 @@
+from tkinter import filedialog
 import customtkinter
 from tkintermapview import TkinterMapView
 from LandData.Terrain import Terrain
@@ -12,7 +13,9 @@ class App(customtkinter.CTk):
     HEIGHT = 500
 
     def __init__(self, *args, **kwargs):
-
+        self.folder = None
+        self.polygon = None
+        
         self.terrain: Terrain
         self.oldSW: tuple = (0, 0)
         self.oldNE: tuple = (0, 0)
@@ -45,31 +48,50 @@ class App(customtkinter.CTk):
 
         # ============ frame_left ============
 
-        self.frame_left.grid_rowconfigure(0, weight=1)
+        rowCounter = 0
+
+        self.frame_left.grid_rowconfigure(rowCounter, weight=1)
+        rowCounter = rowCounter + 1
 
         self.export_dropdown = customtkinter.CTkLabel(self.frame_left, text="Export:", anchor="w")
-        self.export_dropdown.grid(row=2, column=0, padx=(20, 20), pady=(20, 0))
+        self.export_dropdown.grid(row=rowCounter, column=0, padx=(20, 20), pady=(20, 0))
+        rowCounter = rowCounter + 1
 
         self.export_option_menu = customtkinter.CTkOptionMenu(self.frame_left, values=["object", "png", "jpg"],
                                                                command=self.change_export)
-        self.export_option_menu.grid(row=3, column=0, padx=(20, 20), pady=(10, 0))
+        self.export_option_menu.grid(row=rowCounter, column=0, padx=(20, 20), pady=(10, 0))
+        rowCounter = rowCounter + 1
+
+        self.folder_button = customtkinter.CTkButton(master=self.frame_left,
+                                                    text="Choose Folder",
+                                                    command=lambda: self.folder_button_clicked())
+        self.folder_button.grid(row=rowCounter, column=0, padx=(20, 20), pady=(20, 0))
+        rowCounter = rowCounter + 1
+
 
         self.export_button = customtkinter.CTkButton(master=self.frame_left,
                                                       text="Export",
                                                       command=self.export_event)
-        self.export_button.grid(row=4, column=0, padx=(20, 20), pady=(20, 0))
+        self.export_button.grid(row=rowCounter, column=0, padx=(20, 20), pady=(20, 0))
+        rowCounter = rowCounter + 1
 
         self.map_label = customtkinter.CTkLabel(self.frame_left, text="Tile Server:", anchor="w")
-        self.map_label.grid(row=5, column=0, padx=(20, 20), pady=(20, 0))
+        self.map_label.grid(row=rowCounter, column=0, padx=(20, 20), pady=(20, 0))
+        rowCounter = rowCounter + 1
+
         self.map_option_menu = customtkinter.CTkOptionMenu(self.frame_left, values=["OpenStreetMap", "Google normal", "Google satellite", "Google hybrid"],
                                                                        command=self.change_map)
-        self.map_option_menu.grid(row=6, column=0, padx=(20, 20), pady=(10, 0))
+        self.map_option_menu.grid(row=rowCounter, column=0, padx=(20, 20), pady=(10, 0))
+        rowCounter = rowCounter + 1
 
         self.appearance_mode_label = customtkinter.CTkLabel(self.frame_left, text="Appearance Mode:", anchor="w")
-        self.appearance_mode_label.grid(row=7, column=0, padx=(20, 20), pady=(20, 0))
+        self.appearance_mode_label.grid(row=rowCounter, column=0, padx=(20, 20), pady=(20, 0))
+        rowCounter = rowCounter + 1
+
         self.appearance_mode_optionemenu = customtkinter.CTkOptionMenu(self.frame_left, values=["Light", "Dark", "System"],
                                                                        command=self.change_appearance_mode)
-        self.appearance_mode_optionemenu.grid(row=8, column=0, padx=(20, 20), pady=(10, 20))
+        self.appearance_mode_optionemenu.grid(row=rowCounter, column=0, padx=(20, 20), pady=(10, 20))
+        rowCounter = rowCounter + 1
 
         # ============ frame_right ============
 
@@ -89,14 +111,42 @@ class App(customtkinter.CTk):
         self.appearance_mode_optionemenu.set("Dark")
 
     def set_marker_event(self, coords: tuple):
+        # If there are already two markers, delete the first one and remove it from the list
         if len(self.marker_list) == 2:
             self.marker_list[0].delete()
-            del self.marker_list[0]  
-        self.marker_list.append(self.map_widget.set_marker(coords[0], coords[1]))
+            self.marker_list.pop(0)
+
+        # Add the new marker and append it to the list
+        new_marker = self.map_widget.set_marker(coords[0], coords[1])
+        self.marker_list.append(new_marker)
+
+        # Remove any existing polygon first, if it exists
+        if hasattr(self, 'polygon') and self.polygon is not None:
+            self.polygon.delete()
+            self.polygon = None
+
+        # Create a new bounding box if there are exactly two markers
+        if len(self.marker_list) == 2:
+            marker1, marker2 = self.marker_list
+            # Draw a polygon using the bounding box from the two marker positions
+            self.polygon = self.map_widget.set_polygon([
+                (marker1.position[0], marker1.position[1]),
+                (marker2.position[0], marker1.position[1]),
+                (marker2.position[0], marker2.position[1]),
+                (marker1.position[0], marker2.position[1])
+            ])
 
     def clear_marker_event(self):
         for marker in self.marker_list:
             marker.delete()
+    
+    def folder_button_clicked(self):
+        self.folder = filedialog.askdirectory()
+        if len(self.folder) > 16:
+            self.folder_button.configure(text=self.folder[:7] + "..." + self.folder[-7:])
+        else:
+            self.folder_button.configure(text=self.folder)
+        print(self.folder)
 
     def export_event(self):
         export = self.export_option_menu.get()
@@ -118,9 +168,9 @@ class App(customtkinter.CTk):
         print(self.terrain.terrainInfo.elevationDataNPArray)
 
         if export == "object":
-            self.terrain.MakeObjFile("test")
+            self.terrain.MakeObjFile("test", self.folder)
         elif export == "png":
-            self.terrain.MakePngFile("test")
+            self.terrain.MakePngFile("test", self.folder)
         elif export == "jpg":
             pass
         
