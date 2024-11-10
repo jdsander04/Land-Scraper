@@ -91,7 +91,7 @@ class App(customtkinter.CTk):
     def set_marker_event(self, coords: tuple):
         if len(self.marker_list) == 2:
             self.marker_list[0].delete()
-            del self.marker_list[0]
+            del self.marker_list[0]  
         self.marker_list.append(self.map_widget.set_marker(coords[0], coords[1]))
 
     def clear_marker_event(self):
