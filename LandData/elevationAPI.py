@@ -1,5 +1,4 @@
 import requests
-import settings
 import numpy as np
 import rasterio
 import logging
@@ -8,7 +7,14 @@ from io import BytesIO
 logging.basicConfig(level=logging.INFO)
 
 class Tessadem:
-    api_key: str = settings.get_elevation_api_key()
+    api_key: str
+
+    try:
+        with open("API_KEY", "r") as f:
+            api_key = f.read().strip()
+    except FileNotFoundError:
+        api_key = None
+
     base_url = "https://api.tessadem.xyz"
 
     def _build_url(self, key=None, **kwargs, ) -> str:
@@ -79,6 +85,7 @@ class Tessadem:
         url = self._build_url(key=API_KEY, **self._build_kwargs(locations="0,0|0,0"))
         response = requests.get(url)
         if response.status_code == 200:
+            self.api_key = API_KEY
             return True
         else:
             return False
