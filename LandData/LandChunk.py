@@ -9,7 +9,7 @@ class LandChunk:
         self.ne = ne
 
         print(f"Creating LandChunk with sw={sw} and ne={ne}")
-        self.elevationDataNPArray = self.API.getGeoTIFF(sw=self.sw, ne=self.ne, HorizontalStretchFactor=HorizontalStretchFactor)
+        self.elevationDataNPArray = self.API.getElevationNPArray(sw=self.sw, ne=self.ne, HorizontalStretchFactor=HorizontalStretchFactor)
         print(f"Finished creating LandChunk with sw={sw} and ne={ne}")
 
     def getElevationDataNPArray(self, ):
