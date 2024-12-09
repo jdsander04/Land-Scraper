@@ -28,6 +28,18 @@ class Terrain:
         else:
             image.save(f"{filename}.png")
 
+    def MakeJpgFile(self, filename, folder=None):
+        """given a numpy array, make a grey scale png file"""
+
+        print(f"Making JPG file {filename}.jpg")
+        array = self.transformedTerrainInfo.elevationDataNPArray
+
+        image = Image.fromarray((array * 255).astype(np.uint8))
+        if folder:
+            image.save(f"{folder}/{filename}.jpg")
+        else:
+            image.save(f"{filename}.jpg")
+
     def MakeObjFile(self, filename, folder=None, scale=0.01, step=3, sample_size=5):
         """
         Export a numpy array as a scaled 3D object in an OBJ file.

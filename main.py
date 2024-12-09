@@ -224,7 +224,7 @@ class App(customtkinter.CTk):
         elif export == "png":
             self.terrain.MakePngFile("test", self.folder)
         elif export == "jpg":
-            pass
+            self.terrain.MakeJpgFile("test", self.folder)
         elif export == "GEOTIFF":
             self.terrain.MakeGeotiffFile("test", self.folder)
         
