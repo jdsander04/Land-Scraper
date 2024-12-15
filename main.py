@@ -31,8 +31,8 @@ class App(customtkinter.CTk):
     def init_api_key_ui(self):
         """Initialize UI for API key submission."""
         self.title(f"{App.APP_NAME} - API Key Required")
-        self.geometry("400x300")
-        self.minsize(400, 300)
+        self.geometry("400x400")
+        self.minsize(400, 400)
 
         self.api = Tessadem()
 
